@@ -1,0 +1,29 @@
+---
+
+- name: Updating cache
+  become: yes
+  apt:
+    update_cache: yes
+    #cache_valid_time: "{{ cache_valid_time }}"
+  tags:
+    - packages
+
+# Uses a group name to look for a list to combine with base_packages.
+- name: Install Base Packages and any packeges defined per Host Group
+  become: yes
+  apt:
+    name: "{{ base_packages | union(lookup('vars', item + '_group_packages', default=[])) }}"
+    state: present
+  with_items: "{{ group_names }}"
+  tags:
+    - packages
+
+- name: Ensure packages are removed if requested
+  become: yes
+  apt:
+    name: "{{ packages_to_remove }}"
+    state: absent
+    purge: yes
+  when: packages_to_remove is defined
+  tags:
+    - packages

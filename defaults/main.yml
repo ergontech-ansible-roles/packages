@@ -1,0 +1,9 @@
+---
+
+base_packages:
+  - htop
+  - vim
+  - curl
+  - wget
+
+cache_valid_time: 86400 #1 Day in seconds

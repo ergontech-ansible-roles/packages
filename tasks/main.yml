@@ -1,6 +1,23 @@
 ---
 
-- name: Updating cache
+- name: Check server uptime
+  shell: cut -d. -f1 /proc/uptime
+  register: host_uptime
+  changed_when: false
+  tags:
+    - packages
+
+- name: "Update cache if server has been up less than {{ cache_server_valid_uptime }} seconds"
+  become: yes
+  apt:
+    update_cache: yes
+    # Make idempotency test happy
+    cache_valid_time: 60
+  when: "(host_uptime.stdout | int ) < cache_server_valid_uptime"
+  tags:
+    - packages
+
+- name: Updating cache if it has been a while
   become: yes
   apt:
     update_cache: yes

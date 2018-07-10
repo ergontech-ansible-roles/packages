@@ -1,6 +1,23 @@
 ---
 
-- name: Updating cache
+- name: Check server uptime
+  shell: cat /proc/uptime
+  register: host_uptime
+  changed_when: false
+  tags:
+    - packages
+
+- name: Update cache if new server
+  become: yes
+  apt:
+    update_cache: yes
+    # Make idempotency test happy
+    cache_valid_time: 60
+  when: "(host_uptime.stdout_lines[0].split(' ')[0] | int ) / 3600 < 1"
+  tags:
+    - packages
+
+- name: Updating cache if it has been a while
   become: yes
   apt:
     update_cache: yes

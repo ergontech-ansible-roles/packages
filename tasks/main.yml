@@ -7,7 +7,7 @@
   tags:
     - packages
 
-- name: Update cache if new server
+- name: Update cache if server has been up less than an hour
   become: yes
   apt:
     update_cache: yes

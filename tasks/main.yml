@@ -1,19 +1,19 @@
 ---
 
 - name: Check server uptime
-  shell: cat /proc/uptime
+  shell: cut -d. -f1 /proc/uptime
   register: host_uptime
   changed_when: false
   tags:
     - packages
 
-- name: Update cache if server has been up less than an hour
+- name: "Update cache if server has been up less than {{ cache_server_valid_uptime }} seconds"
   become: yes
   apt:
     update_cache: yes
     # Make idempotency test happy
     cache_valid_time: 60
-  when: "(host_uptime.stdout_lines[0].split(' ')[0] | int ) / 3600 < 1"
+  when: "(host_uptime.stdout | int ) < cache_server_valid_uptime"
   tags:
     - packages
 
